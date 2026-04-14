@@ -4,12 +4,12 @@ import java.util.UUID;
 
 import com.luiz.transactions.domain.account.Account;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -23,18 +23,16 @@ public class User {
 
     private String name;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "account_id", nullable = false)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Account account;
 
-    public User() {
+    protected User() {
 
     }
 
-    public User(UUID id, String name, Account account) {
-        this.id = id;
+    public User(String name) {
         this.name = name;
-        this.account = account;
+        this.account = new Account(this);
     }
 
     public UUID getId() {
@@ -51,6 +49,10 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Account getAccount() {
+        return account;
     }
 
 }

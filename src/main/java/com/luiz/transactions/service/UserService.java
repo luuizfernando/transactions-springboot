@@ -4,9 +4,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.luiz.transactions.domain.user.User;
-import com.luiz.transactions.dto.CreateUserRequest;
-import com.luiz.transactions.dto.UserResponse;
-import com.luiz.transactions.exception.ResourceNotFoundException;
+import com.luiz.transactions.dto.CreateUserRequestDTO;
+import com.luiz.transactions.dto.UserResponseDTO;
+import com.luiz.transactions.exception.ConflictException;
 import com.luiz.transactions.repository.UserRepository;
 
 @Service
@@ -19,14 +19,13 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse create(CreateUserRequest data) {
+    public UserResponseDTO create(CreateUserRequestDTO data) {
         if (userRepository.existsByName(data.name())) {
-            throw new ResourceNotFoundException("Usuário já existe.");
+            throw new ConflictException("Usuário já existe.");
         }
-        User user = new User();
-        user.setName(data.name());
+        User user = new User(data.name());
         userRepository.save(user);
-        return new UserResponse(user.getId(), user.getName());
+        return new UserResponseDTO(user.getId(), user.getName(), user.getAccount().getId());
     }
 
 }

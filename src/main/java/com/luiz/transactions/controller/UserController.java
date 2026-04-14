@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.luiz.transactions.dto.CreateUserRequest;
-import com.luiz.transactions.dto.UserResponse;
+import com.luiz.transactions.dto.CreateUserRequestDTO;
+import com.luiz.transactions.dto.UserResponseDTO;
 import com.luiz.transactions.service.UserService;
 
 import jakarta.validation.Valid;
@@ -24,8 +24,8 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> create(@Valid @RequestBody CreateUserRequest data) {
-        UserResponse user = userService.create(data);
+    public ResponseEntity<UserResponseDTO> create(@Valid @RequestBody CreateUserRequestDTO data) {
+        UserResponseDTO user = userService.create(data);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
