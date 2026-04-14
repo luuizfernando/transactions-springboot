@@ -1,5 +1,7 @@
 package com.luiz.transactions.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,18 @@ public class UserService {
         }
         User user = new User(data.name());
         userRepository.save(user);
+        return new UserResponseDTO(user.getId(), user.getName(), user.getAccount().getId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> listAll() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    private UserResponseDTO toResponse(User user) {
         return new UserResponseDTO(user.getId(), user.getName(), user.getAccount().getId());
     }
 
