@@ -8,5 +8,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record DepositRequestDTO(
         @NotNull UUID accountId,
-        @NotNull @DecimalMin(value = "0.01", inclusive = true) BigDecimal amount
+        @NotNull @DecimalMin(value = "0.01", inclusive = true) BigDecimal amount,
+        @NotNull String description
 ) {}

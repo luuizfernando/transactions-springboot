@@ -9,5 +9,6 @@ import jakarta.validation.constraints.NotNull;
 public record TransferRequestDTO(
         @NotNull UUID fromAccountId,
         @NotNull UUID toAccountId,
-        @NotNull @DecimalMin(value = "0.01", inclusive = true) BigDecimal amount
+        @NotNull @DecimalMin(value = "0.01", inclusive = true) BigDecimal amount,
+        @NotNull String description
 ) {}

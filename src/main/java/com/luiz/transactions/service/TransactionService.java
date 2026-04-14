@@ -33,7 +33,7 @@ public class TransactionService {
         Account account = getAccountOrThrow(data.accountId());
         account.setBalance(account.getBalance().add(data.amount()));
 
-        Transaction transaction = Transaction.deposit(account, data.amount());
+        Transaction transaction = Transaction.deposit(account, data.amount(), data.description());
         transactionRepository.save(transaction);
         return toResponse(transaction);
     }
@@ -50,7 +50,7 @@ public class TransactionService {
         fromAccount.setBalance(fromAccount.getBalance().subtract(data.amount()));
         toAccount.setBalance(toAccount.getBalance().add(data.amount()));
 
-        Transaction transaction = Transaction.transfer(fromAccount, toAccount, data.amount());
+        Transaction transaction = Transaction.transfer(fromAccount, toAccount, data.amount(), data.description());
         transactionRepository.save(transaction);
         return toResponse(transaction);
     }
@@ -88,6 +88,7 @@ public class TransactionService {
                 fromAccountId,
                 toAccountId,
                 transaction.getAmount(),
+                transaction.getDescription(),
                 transaction.getCreatedAt());
     }
 

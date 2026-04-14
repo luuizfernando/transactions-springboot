@@ -43,6 +43,8 @@ public class Transaction {
     @Column(nullable = false)
     private TransactionType type;
 
+    private String description;
+
     @Column(nullable = false)
     private Instant createdAt;
 
@@ -50,14 +52,15 @@ public class Transaction {
 
     }
 
-    private Transaction(Account fromAccount, Account toAccount, BigDecimal amount, TransactionType type) {
+    private Transaction(Account fromAccount, Account toAccount, BigDecimal amount, TransactionType type, String description) {
         this.fromAccount = fromAccount;
         this.toAccount = toAccount;
         this.amount = amount;
         this.type = type;
+        this.description = description;
     }
 
-    public static Transaction deposit(Account toAccount, BigDecimal amount) {
+    public static Transaction deposit(Account toAccount, BigDecimal amount, String description) {
         if (toAccount == null) {
             throw new IllegalArgumentException("A conta de destino não pode ser nula.");
         }
@@ -66,10 +69,10 @@ public class Transaction {
             throw new IllegalArgumentException("O valor do depósito deve ser maior que zero.");
         }
 
-        return new Transaction(null, toAccount, amount, TransactionType.DEPOSIT);
+        return new Transaction(null, toAccount, amount, TransactionType.DEPOSIT, description);
     }
 
-    public static Transaction transfer(Account fromAccount, Account toAccount, BigDecimal amount) {
+    public static Transaction transfer(Account fromAccount, Account toAccount, BigDecimal amount, String description) {
         if (fromAccount == null) {
             throw new IllegalArgumentException("A conta de origem não pode ser nula.");
         }
@@ -82,7 +85,7 @@ public class Transaction {
             throw new IllegalArgumentException("O valor da transferência deve ser maior que zero.");
         }
 
-        return new Transaction(fromAccount, toAccount, amount, TransactionType.TRANSFER);
+        return new Transaction(fromAccount, toAccount, amount, TransactionType.TRANSFER, description);
     }
 
     @PrePersist
@@ -110,6 +113,10 @@ public class Transaction {
 
     public TransactionType getType() {
         return type;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public Instant getCreatedAt() {

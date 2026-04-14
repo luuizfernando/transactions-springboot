@@ -13,5 +13,6 @@ public record TransactionResponseDTO(
         UUID fromAccountId,
         UUID toAccountId,
         BigDecimal amount,
+        String description,
         Instant createdAt
 ) {}
