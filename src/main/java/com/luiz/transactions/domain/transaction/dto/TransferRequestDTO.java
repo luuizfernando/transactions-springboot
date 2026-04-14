@@ -1,4 +1,4 @@
-package com.luiz.transactions.dto;
+package com.luiz.transactions.domain.transaction.dto;
 
 import java.math.BigDecimal;
 import java.util.UUID;

@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.luiz.transactions.domain.user.User;
-import com.luiz.transactions.dto.CreateUserRequestDTO;
-import com.luiz.transactions.dto.UserResponseDTO;
+import com.luiz.transactions.domain.user.dto.CreateUserRequestDTO;
+import com.luiz.transactions.domain.user.dto.UserResponseDTO;
 import com.luiz.transactions.exception.ConflictException;
 import com.luiz.transactions.repository.UserRepository;
 

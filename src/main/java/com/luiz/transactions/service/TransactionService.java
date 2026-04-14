@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.luiz.transactions.domain.account.Account;
+import com.luiz.transactions.domain.account.dto.BalanceResponseDTO;
 import com.luiz.transactions.domain.transaction.Transaction;
-import com.luiz.transactions.dto.BalanceResponseDTO;
-import com.luiz.transactions.dto.DepositRequestDTO;
-import com.luiz.transactions.dto.TransactionResponseDTO;
-import com.luiz.transactions.dto.TransferRequestDTO;
+import com.luiz.transactions.domain.transaction.dto.DepositRequestDTO;
+import com.luiz.transactions.domain.transaction.dto.TransactionResponseDTO;
+import com.luiz.transactions.domain.transaction.dto.TransferRequestDTO;
 import com.luiz.transactions.exception.InsufficientFundsException;
 import com.luiz.transactions.exception.ResourceNotFoundException;
 import com.luiz.transactions.repository.AccountRepository;

@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.luiz.transactions.domain.account.Account;
+import com.luiz.transactions.domain.transaction.enums.TransactionType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

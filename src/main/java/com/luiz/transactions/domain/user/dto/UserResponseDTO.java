@@ -1,4 +1,4 @@
-package com.luiz.transactions.dto;
+package com.luiz.transactions.domain.user.dto;
 
 import java.util.UUID;
 

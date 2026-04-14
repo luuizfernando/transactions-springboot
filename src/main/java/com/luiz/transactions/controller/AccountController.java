@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.luiz.transactions.dto.BalanceResponseDTO;
-import com.luiz.transactions.dto.TransactionResponseDTO;
+import com.luiz.transactions.domain.account.dto.BalanceResponseDTO;
+import com.luiz.transactions.domain.transaction.dto.TransactionResponseDTO;
 import com.luiz.transactions.service.TransactionService;
 
 @RestController

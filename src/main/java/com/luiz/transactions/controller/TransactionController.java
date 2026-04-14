@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.luiz.transactions.dto.DepositRequestDTO;
-import com.luiz.transactions.dto.TransactionResponseDTO;
-import com.luiz.transactions.dto.TransferRequestDTO;
+import com.luiz.transactions.domain.transaction.dto.DepositRequestDTO;
+import com.luiz.transactions.domain.transaction.dto.TransactionResponseDTO;
+import com.luiz.transactions.domain.transaction.dto.TransferRequestDTO;
 import com.luiz.transactions.service.TransactionService;
 
 import jakarta.validation.Valid;
