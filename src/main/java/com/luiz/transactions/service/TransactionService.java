@@ -24,10 +24,12 @@ public class TransactionService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final AuditLogService auditLogService;
 
-    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
+    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository, AuditLogService auditLogService) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        this.auditLogService = auditLogService;
     }
 
     @Transactional
@@ -42,7 +44,10 @@ public class TransactionService {
         account.setBalance(account.getBalance().add(data.amount()));
 
         Transaction transaction = Transaction.deposit(account, data.amount(), data.description(), normalizeIdempotencyKey(idempotencyKey));
-        return saveTransactionWithIdempotencyFallback(transaction, idempotencyKey);
+        
+        TransactionResponseDTO response = saveTransactionWithIdempotencyFallback(transaction, idempotencyKey);
+        
+        return response;
     }
 
     @Transactional
@@ -77,7 +82,9 @@ public class TransactionService {
             fromAccount, toAccount, data.amount(), data.description(), normalizeIdempotencyKey(idempotencyKey)
         );
 
-        return saveTransactionWithIdempotencyFallback(transaction, idempotencyKey);
+        TransactionResponseDTO response = saveTransactionWithIdempotencyFallback(transaction, idempotencyKey);
+
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -125,9 +132,23 @@ public class TransactionService {
         String normalizedIdempotencyKey = normalizeIdempotencyKey(idempotencyKey);
         try {
             transactionRepository.save(transaction);
+            
+            UUID fromId = transaction.getFromAccount() != null ? transaction.getFromAccount().getId() : null;
+            UUID toId = transaction.getToAccount().getId();
+            String details = "Valor: " + transaction.getAmount() + " | Descrição: " + transaction.getDescription();
+            
+            auditLogService.logTransaction(fromId, toId, transaction.getType().name(), details);
+            
             return toResponse(transaction);
         } catch (DataIntegrityViolationException ex) {
             if (normalizedIdempotencyKey == null) {
+                auditLogService.logFailure(
+                    "SAVE_TRANSACTION",
+                    transaction.getToAccount().getId(),
+                    "Erro de integridade ao salvar transação",
+                    ex.getMessage()
+                );
+
                 throw ex;
             }
 
