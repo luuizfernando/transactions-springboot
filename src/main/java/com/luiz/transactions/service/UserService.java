@@ -2,12 +2,14 @@ package com.luiz.transactions.service;
 
 import java.util.List;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.luiz.transactions.domain.user.User;
-import com.luiz.transactions.domain.user.dto.CreateUserRequestDTO;
+import com.luiz.transactions.domain.user.dto.RegisterDTO;
 import com.luiz.transactions.domain.user.dto.UserResponseDTO;
+import com.luiz.transactions.domain.user.enums.UserRole;
 import com.luiz.transactions.exception.ConflictException;
 import com.luiz.transactions.repository.UserRepository;
 
@@ -21,11 +23,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO create(CreateUserRequestDTO data) {
+    public UserResponseDTO create(RegisterDTO data) {
         if (userRepository.existsByName(data.name())) {
             throw new ConflictException("Usuário já existe.");
         }
-        User user = new User(data.name());
+        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+        User user = new User(data.name(), encryptedPassword, UserRole.USER);
         userRepository.save(user);
         return new UserResponseDTO(user.getId(), user.getName(), user.getAccount().getId());
     }
