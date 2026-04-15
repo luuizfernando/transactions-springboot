@@ -32,12 +32,13 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponseDTO deposit(DepositRequestDTO data, String idempotencyKey) {
+        Account account = getAccountOrThrowWithLock(data.accountId());
+
         Optional<Transaction> existingTransaction = findByIdempotencyKey(idempotencyKey);
         if (existingTransaction.isPresent()) {
             return toResponse(existingTransaction.get());
         }
 
-        Account account = getAccountOrThrowWithLock(data.accountId());
         account.setBalance(account.getBalance().add(data.amount()));
 
         Transaction transaction = Transaction.deposit(account, data.amount(), data.description(), normalizeIdempotencyKey(idempotencyKey));
@@ -46,11 +47,6 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponseDTO transfer(TransferRequestDTO data, String idempotencyKey) {
-        Optional<Transaction> existingTransaction = findByIdempotencyKey(idempotencyKey);
-        if (existingTransaction.isPresent()) {
-            return toResponse(existingTransaction.get());
-        }
-
         UUID fromAccountId = data.fromAccountId();
         UUID toAccountId = data.toAccountId();
 
@@ -60,6 +56,12 @@ public class TransactionService {
 
         Account firstLockedAccount = getAccountOrThrowWithLock(firstLockId);
         Account secondLockedAccount = getAccountOrThrowWithLock(secondLockId);
+
+        Optional<Transaction> existingTransaction = findByIdempotencyKey(idempotencyKey);
+        
+        if (existingTransaction.isPresent()) {
+            return toResponse(existingTransaction.get());
+        }
 
         Account fromAccount = lockFromFirst ? firstLockedAccount : secondLockedAccount;
         Account toAccount = lockFromFirst ? secondLockedAccount : firstLockedAccount;
