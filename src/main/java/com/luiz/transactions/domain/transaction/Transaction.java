@@ -43,6 +43,9 @@ public class Transaction {
     @Column(nullable = false)
     private TransactionType type;
 
+    @Column(unique = true, nullable = true)
+    private String idempotencyKey;
+
     private String description;
 
     @Column(nullable = false)
@@ -52,15 +55,16 @@ public class Transaction {
 
     }
 
-    private Transaction(Account fromAccount, Account toAccount, BigDecimal amount, TransactionType type, String description) {
+    private Transaction(Account fromAccount, Account toAccount, BigDecimal amount, TransactionType type, String description, String idempotencyKey) {
         this.fromAccount = fromAccount;
         this.toAccount = toAccount;
         this.amount = amount;
         this.type = type;
         this.description = description;
+        this.idempotencyKey = idempotencyKey;
     }
 
-    public static Transaction deposit(Account toAccount, BigDecimal amount, String description) {
+    public static Transaction deposit(Account toAccount, BigDecimal amount, String description, String idempotencyKey) {
         if (toAccount == null) {
             throw new IllegalArgumentException("A conta de destino não pode ser nula.");
         }
@@ -69,10 +73,10 @@ public class Transaction {
             throw new IllegalArgumentException("O valor do depósito deve ser maior que zero.");
         }
 
-        return new Transaction(null, toAccount, amount, TransactionType.DEPOSIT, description);
+        return new Transaction(null, toAccount, amount, TransactionType.DEPOSIT, description, idempotencyKey);
     }
 
-    public static Transaction transfer(Account fromAccount, Account toAccount, BigDecimal amount, String description) {
+    public static Transaction transfer(Account fromAccount, Account toAccount, BigDecimal amount, String description, String idempotencyKey) {
         if (fromAccount == null) {
             throw new IllegalArgumentException("A conta de origem não pode ser nula.");
         }
@@ -85,7 +89,7 @@ public class Transaction {
             throw new IllegalArgumentException("O valor da transferência deve ser maior que zero.");
         }
 
-        return new Transaction(fromAccount, toAccount, amount, TransactionType.TRANSFER, description);
+        return new Transaction(fromAccount, toAccount, amount, TransactionType.TRANSFER, description, idempotencyKey);
     }
 
     @PrePersist
@@ -117,6 +121,10 @@ public class Transaction {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getIdempotencyKey() {
+        return idempotencyKey;
     }
 
     public Instant getCreatedAt() {
