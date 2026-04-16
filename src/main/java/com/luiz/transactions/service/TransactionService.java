@@ -15,6 +15,7 @@ import com.luiz.transactions.domain.transaction.Transaction;
 import com.luiz.transactions.domain.transaction.dto.DepositRequestDTO;
 import com.luiz.transactions.domain.transaction.dto.TransactionResponseDTO;
 import com.luiz.transactions.domain.transaction.dto.TransferRequestDTO;
+import com.luiz.transactions.domain.transaction.enums.TransactionCategory;
 import com.luiz.transactions.exception.InsufficientFundsException;
 import com.luiz.transactions.exception.ResourceNotFoundException;
 import com.luiz.transactions.repository.AccountRepository;
@@ -46,7 +47,7 @@ public class TransactionService {
 
         account.setBalance(account.getBalance().add(data.amount()));
 
-        String category = aiService.classifyTransaction(data.description());
+        TransactionCategory category = aiService.classifyTransaction(data.description());
         Transaction transaction = Transaction.deposit(account, data.amount(), data.description(), normalizeIdempotencyKey(idempotencyKey), category);
         
         TransactionResponseDTO response = saveTransactionWithIdempotencyFallback(transaction, idempotencyKey);
@@ -85,12 +86,14 @@ public class TransactionService {
         fromAccount.setBalance(fromAccount.getBalance().subtract(data.amount()));
         toAccount.setBalance(toAccount.getBalance().add(data.amount()));
 
-        String category = aiService.classifyTransaction(data.description());
+        TransactionCategory category = aiService.classifyTransaction(data.description());
 
-        Transaction transferOut = Transaction.transferOut(
-                fromAccount, toAccount, data.amount(), data.description(), outIdempotencyKey, category);
+        Transaction transferOut = Transaction.transferOut(            
+            fromAccount, toAccount, data.amount(), data.description(), outIdempotencyKey, category
+        );
         Transaction transferIn = Transaction.transferIn(
-                fromAccount, toAccount, data.amount(), data.description(), inIdempotencyKey, category);
+            fromAccount, toAccount, data.amount(), data.description(), inIdempotencyKey, category
+        );
 
         saveTransactionWithIdempotencyFallback(transferOut, outIdempotencyKey);
         saveTransactionWithIdempotencyFallback(transferIn, inIdempotencyKey);

@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.luiz.transactions.domain.account.Account;
+import com.luiz.transactions.domain.transaction.enums.TransactionCategory;
 import com.luiz.transactions.domain.transaction.enums.TransactionType;
 
 import jakarta.persistence.Column;
@@ -47,7 +48,8 @@ public class Transaction {
     private String idempotencyKey;
 
     @Column(nullable = true)
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private TransactionCategory category;
 
     private String description;
 
@@ -58,7 +60,7 @@ public class Transaction {
 
     }
 
-    private Transaction(Account fromAccount, Account toAccount, BigDecimal amount, TransactionType type, String description, String idempotencyKey, String category) {
+    private Transaction(Account fromAccount, Account toAccount, BigDecimal amount, TransactionType type, String description, String idempotencyKey, TransactionCategory category) {
         this.fromAccount = fromAccount;
         this.toAccount = toAccount;
         this.amount = amount;
@@ -68,7 +70,7 @@ public class Transaction {
         this.category = category;
     }
 
-    public static Transaction deposit(Account toAccount, BigDecimal amount, String description, String idempotencyKey, String category) {
+    public static Transaction deposit(Account toAccount, BigDecimal amount, String description, String idempotencyKey, TransactionCategory category) {
         if (toAccount == null) {
             throw new IllegalArgumentException("A conta de destino não pode ser nula.");
         }
@@ -80,12 +82,12 @@ public class Transaction {
         return new Transaction(null, toAccount, amount, TransactionType.DEPOSIT, description, idempotencyKey, category);
     }
 
-    public static Transaction transferOut(Account fromAccount, Account toAccount, BigDecimal amount, String description, String idempotencyKey, String category) {
+    public static Transaction transferOut(Account fromAccount, Account toAccount, BigDecimal amount, String description, String idempotencyKey, TransactionCategory category) {
         validateTransferAccounts(fromAccount, toAccount, amount);
         return new Transaction(fromAccount, toAccount, amount, TransactionType.TRANSFER_OUT, description, idempotencyKey, category);
     }
 
-    public static Transaction transferIn(Account fromAccount, Account toAccount, BigDecimal amount, String description, String idempotencyKey, String category) {
+    public static Transaction transferIn(Account fromAccount, Account toAccount, BigDecimal amount, String description, String idempotencyKey, TransactionCategory category) {
         validateTransferAccounts(fromAccount, toAccount, amount);
         return new Transaction(fromAccount, toAccount, amount, TransactionType.TRANSFER_IN, description, idempotencyKey, category);
     }
@@ -139,7 +141,7 @@ public class Transaction {
         return idempotencyKey;
     }
 
-    public String getCategory() {
+    public TransactionCategory getCategory() {
         return category;
     }
 

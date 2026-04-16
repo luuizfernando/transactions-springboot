@@ -1,6 +1,8 @@
 package com.luiz.transactions.controller;
 
 import com.luiz.transactions.ai.AiService;
+import com.luiz.transactions.domain.transaction.enums.TransactionCategory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,7 +34,7 @@ public class HealthController {
     @Operation(summary = "Endpoint de teste para classificação de IA", description = "Recebe uma descrição e retorna a categoria classificada pela IA")
     @ApiResponse(responseCode = "200", description = "Classificação realizada com sucesso")
     @GetMapping("/test-ai")
-    public ResponseEntity<String> testAi(@RequestParam String description) {
+    public ResponseEntity<TransactionCategory> testAi(@RequestParam String description) {
         return ResponseEntity.ok(aiService.classifyTransaction(description));
     }
     

@@ -2,8 +2,11 @@ package com.luiz.transactions.ai;
 
 import org.springframework.stereotype.Service;
 
+import com.luiz.transactions.domain.transaction.enums.TransactionCategory;
+
 @Service
 public class AiService {
+    
     private final AiClient aiClient;
     private final PromptBuilder promptBuilder;
 
@@ -12,8 +15,9 @@ public class AiService {
         this.promptBuilder = promptBuilder;
     }
 
-    public String classifyTransaction(String description) {
+    public TransactionCategory classifyTransaction(String description) {
         String prompt = promptBuilder.buildClassificationPrompt(description);
-        return aiClient.sendPrompt(prompt);
+        return TransactionCategory.valueOf(aiClient.sendPrompt(prompt));
     }
+
 }
