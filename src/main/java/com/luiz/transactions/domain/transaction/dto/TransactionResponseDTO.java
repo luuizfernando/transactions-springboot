@@ -26,6 +26,9 @@ public record TransactionResponseDTO(
         
         @Schema(description = "Descrição da transação", example = "Pagamento almoço")
         String description,
+
+        @Schema(description = "Categoria classificada pela IA", example = "ALIMENTACAO")
+        String category,
         
         @Schema(description = "Data e hora de criação da transação")
         Instant createdAt
