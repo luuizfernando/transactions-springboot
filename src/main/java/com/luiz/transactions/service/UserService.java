@@ -40,7 +40,12 @@ public class UserService {
     }
 
     private UserResponseDTO toResponse(User user) {
-        return new UserResponseDTO(user.getId(), user.getName(), user.getAccount().getId());
+        var account = user.getAccount();
+        return new UserResponseDTO(
+            user.getId(),
+            user.getName(),
+            account != null ? account.getId() : null
+        );
     }
 
     @Transactional

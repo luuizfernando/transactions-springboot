@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.luiz.transactions.domain.account.Account;
 import com.luiz.transactions.domain.user.enums.UserRole;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,7 +38,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private UserRole role = UserRole.USER;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Account account;
 
     protected User() {
@@ -50,7 +49,6 @@ public class User implements UserDetails {
         this.name = name;
         this.password = password;
         this.role = role;
-        this.account = new Account(this);
     }
 
     public UUID getId() {
@@ -71,6 +69,10 @@ public class User implements UserDetails {
 
     public Account getAccount() {
         return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
     @Override
