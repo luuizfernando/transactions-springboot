@@ -76,7 +76,17 @@ public class Transaction {
         return new Transaction(null, toAccount, amount, TransactionType.DEPOSIT, description, idempotencyKey);
     }
 
-    public static Transaction transfer(Account fromAccount, Account toAccount, BigDecimal amount, String description, String idempotencyKey) {
+    public static Transaction transferOut(Account fromAccount, Account toAccount, BigDecimal amount, String description, String idempotencyKey) {
+        validateTransferAccounts(fromAccount, toAccount, amount);
+        return new Transaction(fromAccount, toAccount, amount, TransactionType.TRANSFER_OUT, description, idempotencyKey);
+    }
+
+    public static Transaction transferIn(Account fromAccount, Account toAccount, BigDecimal amount, String description, String idempotencyKey) {
+        validateTransferAccounts(fromAccount, toAccount, amount);
+        return new Transaction(fromAccount, toAccount, amount, TransactionType.TRANSFER_IN, description, idempotencyKey);
+    }
+
+    private static void validateTransferAccounts(Account fromAccount, Account toAccount, BigDecimal amount) {
         if (fromAccount == null) {
             throw new IllegalArgumentException("A conta de origem não pode ser nula.");
         }
@@ -88,8 +98,6 @@ public class Transaction {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("O valor da transferência deve ser maior que zero.");
         }
-
-        return new Transaction(fromAccount, toAccount, amount, TransactionType.TRANSFER, description, idempotencyKey);
     }
 
     @PrePersist

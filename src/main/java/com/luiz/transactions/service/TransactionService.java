@@ -62,10 +62,13 @@ public class TransactionService {
         Account firstLockedAccount = getAccountOrThrowWithLock(firstLockId);
         Account secondLockedAccount = getAccountOrThrowWithLock(secondLockId);
 
-        Optional<Transaction> existingTransaction = findByIdempotencyKey(idempotencyKey);
-        
-        if (existingTransaction.isPresent()) {
-            return toResponse(existingTransaction.get());
+        String normalizedBase = normalizeIdempotencyKey(idempotencyKey);
+        String outIdempotencyKey = normalizedBase == null ? null : normalizedBase + "-OUT";
+        String inIdempotencyKey = normalizedBase == null ? null : normalizedBase + "-IN";
+
+        Optional<Transaction> existingOut = findByIdempotencyKey(outIdempotencyKey);
+        if (existingOut.isPresent()) {
+            return toResponse(existingOut.get());
         }
 
         Account fromAccount = lockFromFirst ? firstLockedAccount : secondLockedAccount;
@@ -78,13 +81,15 @@ public class TransactionService {
         fromAccount.setBalance(fromAccount.getBalance().subtract(data.amount()));
         toAccount.setBalance(toAccount.getBalance().add(data.amount()));
 
-        Transaction transaction = Transaction.transfer(
-            fromAccount, toAccount, data.amount(), data.description(), normalizeIdempotencyKey(idempotencyKey)
-        );
+        Transaction transferOut = Transaction.transferOut(
+                fromAccount, toAccount, data.amount(), data.description(), outIdempotencyKey);
+        Transaction transferIn = Transaction.transferIn(
+                fromAccount, toAccount, data.amount(), data.description(), inIdempotencyKey);
 
-        TransactionResponseDTO response = saveTransactionWithIdempotencyFallback(transaction, idempotencyKey);
+        saveTransactionWithIdempotencyFallback(transferOut, outIdempotencyKey);
+        saveTransactionWithIdempotencyFallback(transferIn, inIdempotencyKey);
 
-        return response;
+        return toResponse(transferOut);
     }
 
     @Transactional(readOnly = true)

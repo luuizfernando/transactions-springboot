@@ -12,7 +12,7 @@ public record TransactionResponseDTO(
         @Schema(description = "Identificador único da transação", example = "550e8400-e29b-41d4-a716-446655440002")
         UUID id,
         
-        @Schema(description = "Tipo de transação", example = "TRANSFER")
+        @Schema(description = "Tipo de transação", example = "TRANSFER_OUT")
         TransactionType type,
         
         @Schema(description = "ID da conta de origem", example = "550e8400-e29b-41d4-a716-446655440001")
