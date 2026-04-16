@@ -16,8 +16,12 @@ public class AiService {
     }
 
     public TransactionCategory classifyTransaction(String description) {
-        String prompt = promptBuilder.buildClassificationPrompt(description);
-        return TransactionCategory.valueOf(aiClient.sendPrompt(prompt));
+        try {
+            String prompt = promptBuilder.buildClassificationPrompt(description);
+            return TransactionCategory.valueOf(aiClient.sendPrompt(prompt));
+        } catch (Exception e) {
+            return TransactionCategory.OUTROS;
+        }
     }
 
 }
