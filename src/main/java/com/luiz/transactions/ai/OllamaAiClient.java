@@ -31,18 +31,20 @@ public class OllamaAiClient implements AiClient {
     @Value("${ai.ollama.max-tokens:10}")
     private int maxTokens;
 
-    public OllamaAiClient(WebClient ollamaWebClient) {
-        this.webClient = ollamaWebClient;
+    public OllamaAiClient(WebClient webClient) {
+        this.webClient = webClient;
     }
 
     @Override
     public String sendPrompt(String prompt) {
         OllamaRequest request = new OllamaRequest(
-            model, prompt, false,
+            model,
+            prompt,
+            false,
             new OllamaOptions(maxTokens, 0.0)
         );
 
-        log.info("[AI] Enviando prompt para Ollama | modelo={}", model);
+        log.info("[AI] Enviando prompt para IA | modelo={}", model);
 
         try {
             String raw = webClient.post()
@@ -56,12 +58,12 @@ public class OllamaAiClient implements AiClient {
                     .block();
 
             String category = sanitize(raw);
-            log.info("[AI] Resposta recebida | raw='{}' | categoria='{}'", raw, category);
+            log.info("[IA] Resposta recebida | raw='{}' | categoria='{}'", raw, category);
 
             return category;
 
         } catch (Exception e) {
-            log.error("[AI] Falha ao classificar transação | erro={}", e.getMessage());
+            log.error("[IA] Falha ao classificar transação | erro={}", e.getMessage());
             return "OUTROS";
         }
     }
@@ -78,4 +80,5 @@ public class OllamaAiClient implements AiClient {
         
         return "OUTROS";
     }
+    
 }
