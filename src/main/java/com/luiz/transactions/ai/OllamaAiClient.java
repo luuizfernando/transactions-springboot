@@ -31,23 +31,37 @@ public class OllamaAiClient implements AiClient {
     @Value("${ai.ollama.max-tokens:10}")
     private int maxTokens;
 
+    @Value("${ai.ollama.summary-max-tokens:150}")
+    private int summaryMaxTokens;
+
     public OllamaAiClient(WebClient webClient) {
         this.webClient = webClient;
     }
 
     @Override
     public String sendPrompt(String prompt) {
+        String raw = callModel(prompt, maxTokens);
+        String category = sanitize(raw);
+        log.info("[IA] Resposta de classificação | raw='{}' | categoria='{}'", raw, category);
+        return category;
+    }
+
+    @Override
+    public String sendSummaryPrompt(String prompt) {
+        log.info("[IA] Solicitando resumo financeiro...");
+        return callModel(prompt, summaryMaxTokens);
+    }
+
+    private String callModel(String prompt, int tokens) {
         OllamaRequest request = new OllamaRequest(
             model,
             prompt,
             false,
-            new OllamaOptions(maxTokens, 0.0)
+            new OllamaOptions(tokens, 0.0)
         );
 
-        log.info("[AI] Enviando prompt para IA | modelo={}", model);
-
         try {
-            String raw = webClient.post()
+            return webClient.post()
                     .uri("/api/generate")
                     .bodyValue(request)
                     .retrieve()
@@ -56,15 +70,9 @@ public class OllamaAiClient implements AiClient {
                     .retryWhen(Retry.fixedDelay(2, Duration.ofSeconds(1)))
                     .map(OllamaResponse::response)
                     .block();
-
-            String category = sanitize(raw);
-            log.info("[IA] Resposta recebida | raw='{}' | categoria='{}'", raw, category);
-
-            return category;
-
         } catch (Exception e) {
-            log.error("[IA] Falha ao classificar transação | erro={}", e.getMessage());
-            return "OUTROS";
+            log.error("[IA] Falha na chamada ao Ollama | erro={}", e.getMessage());
+            return "Erro ao processar solicitação de IA.";
         }
     }
 

@@ -1,5 +1,6 @@
 package com.luiz.transactions.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.persistence.LockModeType;
@@ -19,6 +20,8 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Account a WHERE a.id = :id")
-    java.util.Optional<Account> findByIdWithLock(@Param("id") UUID id);
+    Optional<Account> findByIdWithLock(@Param("id") UUID id);
+
+    Optional<Account> findByUserId(UUID userId);
     
 }
