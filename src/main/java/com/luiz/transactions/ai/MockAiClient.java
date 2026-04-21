@@ -10,4 +10,9 @@ public class MockAiClient implements AiClient {
     public String sendPrompt(String prompt) {
         return "ALIMENTACAO";
     }
+
+    @Override
+    public String sendSummaryPrompt(String prompt) {
+        return "Este é um resumo financeiro de teste gerado pelo MockAiClient.";
+    }
 }

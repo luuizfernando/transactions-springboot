@@ -34,6 +34,11 @@
       "name": "ai.ollama.max-tokens",
       "type": "java.lang.String",
       "description": "A description for 'ai.ollama.max-tokens'"
+    },
+    {
+      "name": "ai.ollama.summary-max-tokens",
+      "type": "java.lang.String",
+      "description": "A description for 'ai.ollama.summary-max-tokens'"
     }
   ]
 }
