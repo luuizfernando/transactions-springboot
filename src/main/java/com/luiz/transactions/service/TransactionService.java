@@ -162,13 +162,11 @@ public class TransactionService {
                     "Erro de integridade ao salvar transação",
                     ex.getMessage()
                 );
-
-                throw ex;
             }
 
             return transactionRepository.findByIdempotencyKey(normalizedIdempotencyKey)
                     .map(this::toResponse)
-                    .orElseThrow(() -> ex);
+                    .orElseThrow(() -> new DataIntegrityViolationException(ex.getMessage()));
         }
     }
 
