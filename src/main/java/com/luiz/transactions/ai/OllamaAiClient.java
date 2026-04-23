@@ -4,6 +4,8 @@ import com.luiz.transactions.ai.dto.OllamaOptions;
 import com.luiz.transactions.ai.dto.OllamaRequest;
 import com.luiz.transactions.ai.dto.OllamaResponse;
 import com.luiz.transactions.domain.transaction.enums.TransactionCategory;
+import com.luiz.transactions.exception.AiErrorException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,13 +27,13 @@ public class OllamaAiClient implements AiClient {
     @Value("${ai.ollama.model}")
     private String model;
 
-    @Value("${ai.ollama.timeout-seconds:10}")
+    @Value("${ai.ollama.timeout-seconds:30}")
     private int timeoutSeconds;
 
-    @Value("${ai.ollama.max-tokens:10}")
+    @Value("${ai.ollama.max-tokens}")
     private int maxTokens;
 
-    @Value("${ai.ollama.summary-max-tokens:150}")
+    @Value("${ai.ollama.summary-max-tokens}")
     private int summaryMaxTokens;
 
     public OllamaAiClient(WebClient webClient) {
@@ -72,7 +74,7 @@ public class OllamaAiClient implements AiClient {
                     .block();
         } catch (Exception e) {
             log.error("[IA] Falha na chamada ao Ollama | erro={}", e.getMessage());
-            return "Erro ao processar solicitação de IA.";
+            throw new AiErrorException("O serviço de IA está temporariamente indisponível. Tente novamente mais tarde.");
         }
     }
 

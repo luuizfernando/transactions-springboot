@@ -56,6 +56,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(err);
     }
 
+    @ExceptionHandler(AiErrorException.class)
+    public ResponseEntity<StandardError> handleAiSummaryFail(AiErrorException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
+        StandardError err = new StandardError(Instant.now(), status.value(), ex.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<StandardError> handleException(Exception ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
