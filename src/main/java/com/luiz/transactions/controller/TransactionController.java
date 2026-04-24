@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.luiz.transactions.domain.transaction.dto.DepositRequestDTO;
+import com.luiz.transactions.domain.transaction.dto.TransactionAnalyzeRequestDTO;
+import com.luiz.transactions.domain.transaction.dto.TransactionRiskResponseDTO;
 import com.luiz.transactions.domain.transaction.dto.TransactionResponseDTO;
 import com.luiz.transactions.domain.transaction.dto.TransferRequestDTO;
+import com.luiz.transactions.service.TransactionAnalysisService;
 import com.luiz.transactions.service.TransactionService;
 
 import jakarta.validation.Valid;
@@ -26,9 +29,11 @@ import jakarta.validation.Valid;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final TransactionAnalysisService transactionAnalysisService;
 
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService, TransactionAnalysisService transactionAnalysisService) {
         this.transactionService = transactionService;
+        this.transactionAnalysisService = transactionAnalysisService;
     }
 
     @Operation(summary = "Realiza um depósito", description = "Adiciona saldo a uma conta")
@@ -61,6 +66,17 @@ public class TransactionController {
     ) {
         TransactionResponseDTO response = transactionService.transfer(data, idempotencyKey);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Analisa o risco de uma transação", description = "Avalia se uma transação é suspeita com base no histórico")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Análise realizada com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados de análise inválidos")
+    })
+    @PostMapping("/analyze")
+    public ResponseEntity<TransactionRiskResponseDTO> analyze(@Valid @RequestBody TransactionAnalyzeRequestDTO data) {
+        TransactionRiskResponseDTO response = transactionAnalysisService.analyze(data);
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -4,6 +4,41 @@
       "name": "transactions.api.security.secret",
       "type": "java.lang.String",
       "description": "A description for 'transactions.api.security.secret'"
+    },
+    {
+      "name": "spring.flyway.repair-on-migrate",
+      "type": "java.lang.String",
+      "description": "A description for 'spring.flyway.repair-on-migrate'"
+    },
+    {
+      "name": "ai.client.type",
+      "type": "java.lang.String",
+      "description": "A description for 'ai.client.type'"
+    },
+    {
+      "name": "ai.ollama.base-url",
+      "type": "java.lang.String",
+      "description": "A description for 'ai.ollama.base-url'"
+    },
+    {
+      "name": "ai.ollama.model",
+      "type": "java.lang.String",
+      "description": "A description for 'ai.ollama.model'"
+    },
+    {
+      "name": "ai.ollama.timeout-seconds",
+      "type": "java.lang.String",
+      "description": "A description for 'ai.ollama.timeout-seconds'"
+    },
+    {
+      "name": "ai.ollama.max-tokens",
+      "type": "java.lang.String",
+      "description": "A description for 'ai.ollama.max-tokens'"
+    },
+    {
+      "name": "ai.ollama.summary-max-tokens",
+      "type": "java.lang.String",
+      "description": "A description for 'ai.ollama.summary-max-tokens'"
     }
   ]
 }

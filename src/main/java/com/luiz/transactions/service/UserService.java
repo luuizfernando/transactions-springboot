@@ -24,11 +24,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final AccountService accountService;
 
-    public UserService(UserRepository userRepository, AuthenticationManager authenticationManager, TokenService tokenService) {
+    public UserService(UserRepository userRepository, AuthenticationManager authenticationManager, TokenService tokenService, AccountService accountService) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
+        this.accountService = accountService;
     }
 
     @Transactional(readOnly = true)
@@ -53,9 +55,13 @@ public class UserService {
         if (userRepository.existsByName(data.name())) {
             throw new ConflictException("Usuário já existe.");
         }
+        
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
         User user = new User(data.name(), encryptedPassword, UserRole.USER);
         userRepository.save(user);
+        
+        accountService.createAccountForUser(user);
+        
         return toResponse(user);
     }
 

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.luiz.transactions.domain.transaction.enums.TransactionCategory;
 import com.luiz.transactions.domain.transaction.enums.TransactionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -26,6 +27,9 @@ public record TransactionResponseDTO(
         
         @Schema(description = "Descrição da transação", example = "Pagamento almoço")
         String description,
+
+        @Schema(description = "Categoria classificada pela IA", example = "ALIMENTACAO")
+        TransactionCategory category,
         
         @Schema(description = "Data e hora de criação da transação")
         Instant createdAt

@@ -8,12 +8,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.luiz.transactions.ai.AiService;
 import com.luiz.transactions.domain.account.Account;
 import com.luiz.transactions.domain.account.dto.BalanceResponseDTO;
 import com.luiz.transactions.domain.transaction.Transaction;
 import com.luiz.transactions.domain.transaction.dto.DepositRequestDTO;
 import com.luiz.transactions.domain.transaction.dto.TransactionResponseDTO;
 import com.luiz.transactions.domain.transaction.dto.TransferRequestDTO;
+import com.luiz.transactions.domain.transaction.enums.TransactionCategory;
 import com.luiz.transactions.exception.InsufficientFundsException;
 import com.luiz.transactions.exception.ResourceNotFoundException;
 import com.luiz.transactions.repository.AccountRepository;
@@ -25,11 +27,13 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final AuditLogService auditLogService;
+    private final AiService aiService;
 
-    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository, AuditLogService auditLogService) {
+    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository, AuditLogService auditLogService, AiService aiService) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
         this.auditLogService = auditLogService;
+        this.aiService = aiService;
     }
 
     @Transactional
@@ -43,7 +47,8 @@ public class TransactionService {
 
         account.setBalance(account.getBalance().add(data.amount()));
 
-        Transaction transaction = Transaction.deposit(account, data.amount(), data.description(), normalizeIdempotencyKey(idempotencyKey));
+        TransactionCategory category = aiService.classifyTransaction(data.description());
+        Transaction transaction = Transaction.deposit(account, data.amount(), data.description(), normalizeIdempotencyKey(idempotencyKey), category);
         
         TransactionResponseDTO response = saveTransactionWithIdempotencyFallback(transaction, idempotencyKey);
         
@@ -81,10 +86,14 @@ public class TransactionService {
         fromAccount.setBalance(fromAccount.getBalance().subtract(data.amount()));
         toAccount.setBalance(toAccount.getBalance().add(data.amount()));
 
-        Transaction transferOut = Transaction.transferOut(
-                fromAccount, toAccount, data.amount(), data.description(), outIdempotencyKey);
+        TransactionCategory category = aiService.classifyTransaction(data.description());
+
+        Transaction transferOut = Transaction.transferOut(            
+            fromAccount, toAccount, data.amount(), data.description(), outIdempotencyKey, category
+        );
         Transaction transferIn = Transaction.transferIn(
-                fromAccount, toAccount, data.amount(), data.description(), inIdempotencyKey);
+            fromAccount, toAccount, data.amount(), data.description(), inIdempotencyKey, category
+        );
 
         saveTransactionWithIdempotencyFallback(transferOut, outIdempotencyKey);
         saveTransactionWithIdempotencyFallback(transferIn, inIdempotencyKey);
@@ -153,13 +162,11 @@ public class TransactionService {
                     "Erro de integridade ao salvar transação",
                     ex.getMessage()
                 );
-
-                throw ex;
             }
 
             return transactionRepository.findByIdempotencyKey(normalizedIdempotencyKey)
                     .map(this::toResponse)
-                    .orElseThrow(() -> ex);
+                    .orElseThrow(() -> new DataIntegrityViolationException(ex.getMessage()));
         }
     }
 
@@ -177,6 +184,7 @@ public class TransactionService {
                 toAccountId,
                 transaction.getAmount(),
                 transaction.getDescription(),
+                transaction.getCategory(),
                 transaction.getCreatedAt());
     }
 
