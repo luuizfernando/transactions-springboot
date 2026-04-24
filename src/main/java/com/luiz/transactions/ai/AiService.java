@@ -24,4 +24,8 @@ public class AiService {
         }
     }
 
+    public String explainRisk(String prompt) {
+        return aiClient.sendSummaryPrompt(prompt);
+    }
+
 }
