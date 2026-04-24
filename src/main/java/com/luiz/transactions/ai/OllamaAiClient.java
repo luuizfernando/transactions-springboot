@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
+import java.util.concurrent.TimeoutException;
 
 @Component
 @ConditionalOnProperty(name = "ai.client.type", havingValue = "ollama", matchIfMissing = true)
@@ -69,7 +70,9 @@ public class OllamaAiClient implements AiClient {
                     .retrieve()
                     .bodyToMono(OllamaResponse.class)
                     .timeout(Duration.ofSeconds(timeoutSeconds))
-                    .retryWhen(Retry.fixedDelay(2, Duration.ofSeconds(1)))
+                    .retryWhen(Retry.fixedDelay(2, Duration.ofSeconds(1))
+                            .filter(e -> !(e instanceof TimeoutException))
+                            .doBeforeRetry(signal -> log.warn("[IA] Tentativa {} após erro: {}", signal.totalRetries() + 1, signal.failure().getMessage())))
                     .map(OllamaResponse::response)
                     .block();
         } catch (Exception e) {

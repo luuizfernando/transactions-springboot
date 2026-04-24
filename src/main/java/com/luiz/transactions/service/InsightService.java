@@ -66,9 +66,14 @@ public class InsightService {
                 );
 
         String prompt = promptBuilder.buildSummaryPrompt(totals);
-        String summary = aiClient.sendSummaryPrompt(prompt);
-
-        return new InsightSummaryResponseDTO(summary);
+        
+        try {
+            String summary = aiClient.sendSummaryPrompt(prompt);
+            return new InsightSummaryResponseDTO(summary);
+        } catch (Exception e) {
+            log.warn("[Insight] IA indisponível, retornando fallback | erro={}", e.getMessage());
+            return new InsightSummaryResponseDTO("Resumo financeiro temporariamente indisponível.");
+        }
     }
 
 }

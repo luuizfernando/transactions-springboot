@@ -3,6 +3,8 @@ package com.luiz.transactions.service;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.luiz.transactions.ai.AiService;
@@ -14,6 +16,8 @@ import com.luiz.transactions.repository.TransactionRepository;
 
 @Service
 public class TransactionAnalysisService {
+
+    private static final Logger log = LoggerFactory.getLogger(TransactionAnalysisService.class);
 
     private final TransactionRepository transactionRepository;
     private final AiService aiService;
@@ -32,6 +36,8 @@ public class TransactionAnalysisService {
 
         RiskLevel riskLevel = calculateRiskLevel(amount, average, averageOpt.isEmpty());
         String prompt = promptBuilder.buildRiskAnalysisPrompt(amount, average, riskLevel.name(), data.description());
+
+        log.info("[Analise] Solicitando explicação de risco | accountId={}, riskLevel={}", data.accountId(), riskLevel);
         String reason = aiService.explainRisk(prompt);
 
         return new TransactionRiskResponseDTO(riskLevel, reason);
