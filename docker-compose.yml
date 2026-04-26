@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: transactions
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
@@ -43,11 +43,12 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/transactions
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       AI_OLLAMA_BASE_URL: http://ollama:11434
       AI_OLLAMA_MODEL: llama3.2
+      TRANSACTIONS_API_SECURITY_SECRET: ${TRANSACTIONS_API_SECURITY_SECRET}
     ports:
       - "8080:8080"
     restart: unless-stopped
@@ -65,8 +66,8 @@ services:
     image: dpage/pgadmin4
     container_name: transactions-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "5050:80"
     depends_on:

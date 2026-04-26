@@ -2,6 +2,8 @@ package com.luiz.transactions.config.security;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +22,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
     private final UserRepository userRepository;
+    private static final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
 
     public SecurityFilter(TokenService tokenService, UserRepository userRepository) {
         this.tokenService = tokenService;
@@ -35,10 +38,19 @@ public class SecurityFilter extends OncePerRequestFilter {
                     try {
                         var subject = tokenService.validateToken(token);
                         UserDetails user = userRepository.findByName(subject);
+                        if (user == null) {
+                            log.warn("Usuário não encontrado para o token: {}", subject);
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("Usuário não encontrado.");
+                            return;
+                        }
                         var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     } catch (Exception e) {
-                        System.out.println("Erro no SecurityFilter: " + e.getMessage());
+                        log.error("Erro na validação do token: {}", e.getMessage());
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("Token inválido ou expirado.");
+                        return;
                     }
                 }
 
@@ -47,7 +59,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private String recoverToken(HttpServletRequest request) {
         var authHeader = request.getHeader("Authorization");
-        if (authHeader == null) return null;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
         return authHeader.replace("Bearer ", "");
     }
     

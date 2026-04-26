@@ -60,6 +60,10 @@ public class TransactionService {
         UUID fromAccountId = data.fromAccountId();
         UUID toAccountId = data.toAccountId();
 
+        if (fromAccountId.equals(toAccountId)) {
+            throw new IllegalArgumentException("A conta de origem não pode ser igual à conta de destino.");
+        }
+
         boolean lockFromFirst = fromAccountId.compareTo(toAccountId) <= 0;
         UUID firstLockId = lockFromFirst ? fromAccountId : toAccountId;
         UUID secondLockId = lockFromFirst ? toAccountId : fromAccountId;
