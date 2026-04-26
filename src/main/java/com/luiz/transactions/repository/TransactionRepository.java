@@ -18,7 +18,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query("SELECT t FROM Transaction t WHERE t.fromAccount.id = :accountId OR t.toAccount.id = :accountId")
     List<Transaction> findByAccountId(@Param("accountId") UUID accountId);
 
-    @Query("SELECT AVG(t.amount) FROM Transaction t WHERE t.toAccount.id = :accountId OR t.fromAccount.id = :accountId")
+    @Query("SELECT AVG(t.amount) FROM Transaction t WHERE t.fromAccount.id = :accountId AND t.type = 'TRANSFER_OUT'")
     Optional<BigDecimal> findAverageAmountByAccountId(@Param("accountId") UUID accountId);
     
 }

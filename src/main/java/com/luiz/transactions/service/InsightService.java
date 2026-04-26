@@ -6,6 +6,7 @@ import com.luiz.transactions.domain.account.Account;
 import com.luiz.transactions.domain.insight.dto.InsightSummaryResponseDTO;
 import com.luiz.transactions.domain.transaction.Transaction;
 import com.luiz.transactions.domain.transaction.enums.TransactionCategory;
+import com.luiz.transactions.domain.transaction.enums.TransactionType;
 import com.luiz.transactions.domain.user.User;
 import com.luiz.transactions.exception.ResourceNotFoundException;
 import com.luiz.transactions.repository.AccountRepository;
@@ -58,6 +59,7 @@ public class InsightService {
         }
 
         Map<TransactionCategory, BigDecimal> totals = transactions.stream()
+                .filter(t -> t.getType() == TransactionType.TRANSFER_OUT)
                 .collect(
                     Collectors.groupingBy(
                         t -> t.getCategory() != null ? t.getCategory() : TransactionCategory.OUTROS,

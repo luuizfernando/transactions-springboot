@@ -67,6 +67,14 @@ public class User implements UserDetails {
         this.name = name;
     }
 
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
     public Account getAccount() {
         return account;
     }
